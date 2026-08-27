@@ -28,8 +28,8 @@ export default function App() {
     return (
         <main>
            <picture>
-                <source media="(max-width: 767px)" srcSet="bg-main-mobile.png" />
-                <img src="bg-main-mobile.png" alt="Gambar" />
+                <source media="(max-width: 767px)" srcSet="src/assets/images/bg-main-mobile.png" />
+                <img src="src/assets/images/bg-main-mobile.png" alt="Gambar" />
             </picture>
 
             <Preview data={data}/>

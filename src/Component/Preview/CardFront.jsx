@@ -1,13 +1,10 @@
 export default function PreviewFront({data}) {
     return (
         <div className="">
-            <img src="bg-card-front.png" alt="" className="bg-image"/>
+            <img src="src/assets/images/bg-card-front.png" alt="" className="bg-image"/>
 
-            <div className="decor">
-                <div className="circle1"></div>
-                <div className="circle2"></div>
-            </div>
-
+            <img src="src/assets/images/card-logo.svg" alt="" />
+            
             <div className="">
                 <div className="cardNumber">{
                 data.cardNumber.replace(/(.{4})(?=.{4})/g, '$1 ') || 
