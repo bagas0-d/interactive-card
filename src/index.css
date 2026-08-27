@@ -9,3 +9,192 @@
   --color-gray-400: hsl(212 12% 71%);
   --color-purple-950: hsl(278 68% 11%);
 }
+
+.card-front {
+  position: relative;
+  width: min(31.04vw, 447px);
+  aspect-ratio: 447 / 245;
+  overflow: hidden;
+  color: white;
+  background: url("./assets/images/bg-card-front.png") center / cover no-repeat;
+  border-radius: clamp(5px, 0.56vw, 8px);
+  box-shadow: 0 2rem 3rem rgb(0 0 0 / 15%);
+  font-family: var(--font-space);
+  font-weight: 500;
+}
+
+.card-front__logo {
+  position: absolute;
+  top: 10.2%;
+  left: 7.2%;
+  width: 20.8%;
+  height: auto;
+}
+
+.card-front__details {
+  position: absolute;
+  inset: auto 7.2% 10.2%;
+}
+
+.card-front__number,
+.card-front__name,
+.card-front__expiry {
+  margin: 0;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.card-front__number {
+  margin-bottom: 7.4%;
+  font-size: clamp(0.75rem, 1.67vw, 1.5rem);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.card-front__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: clamp(0.45rem, 0.76vw, 0.6875rem);
+  text-transform: uppercase;
+}
+
+.card-front__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-front__expiry {
+  flex: 0 0 auto;
+}
+
+.card-back {
+  position: relative;
+  width: min(31.04vw, 447px);
+  aspect-ratio: 447 / 245;
+  overflow: hidden;
+  background: url("./assets/images/bg-card-back.png") center / cover no-repeat;
+  border-radius: clamp(5px, 0.56vw, 8px);
+  box-shadow: 0 2rem 3rem rgb(0 0 0 / 15%);
+  font-family: var(--font-space);
+  font-weight: 500;
+}
+
+.card-back__cvc {
+  position: absolute;
+  top: 47.5%;
+  right: 12.8%;
+  margin: 0;
+  color: white;
+  font-size: clamp(0.5rem, 0.83vw, 0.75rem);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.thank-you {
+  display: flex;
+  width: min(100%, 381px);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--font-space);
+}
+
+.thank-you__icon {
+  display: block;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 36px;
+}
+
+.thank-you h1 {
+  margin: 0 0 18px;
+  color: var(--color-purple-950);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.thank-you__message {
+  margin: 0 0 50px;
+  color: var(--color-gray-400);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.thank-you__button {
+  width: 100%;
+  min-height: 54px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 8px;
+  color: var(--color-white);
+  background: var(--color-purple-950);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.thank-you__button:hover {
+  background: hsl(278 68% 17%);
+}
+
+.thank-you__button:focus-visible {
+  outline: 3px solid hsl(249 99% 64%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .card-front {
+    width: min(76.27vw, 286px);
+    border-radius: 5px;
+    box-shadow: 0 1.5rem 2rem rgb(0 0 0 / 15%);
+  }
+
+  .card-front__number {
+    font-size: clamp(0.68rem, 3.2vw, 0.875rem);
+  }
+
+  .card-front__footer {
+    font-size: clamp(0.4rem, 1.8vw, 0.5rem);
+  }
+
+  .card-back {
+    width: min(76.27vw, 286px);
+    border-radius: 5px;
+    box-shadow: 0 1.5rem 2rem rgb(0 0 0 / 15%);
+  }
+
+  .card-back__cvc {
+    font-size: clamp(0.4rem, 1.6vw, 0.5rem);
+  }
+
+  .thank-you {
+    width: calc(100% - 48px);
+  }
+
+  .thank-you__icon {
+    margin-bottom: 38px;
+  }
+
+  .thank-you h1 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+
+  .thank-you__message {
+    margin-bottom: 48px;
+    font-size: 1.125rem;
+  }
+
+  .thank-you__button {
+    min-height: 54px;
+  }
+}

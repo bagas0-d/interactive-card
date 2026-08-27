@@ -1,9 +1,7 @@
-export default function PreviewBack({cvc}) {
-    return(
-        <div className="">
-            <img src="src/assets/images/bg-card-back.png" alt="" className="bg-image"/>
-
-            <p className="cvc">{cvc || "000"}</p>
-        </div>
-    )
+export default function PreviewBack({ cvc }) {
+    return (
+        <article className="card-back" aria-label="Card back preview">
+            <p className="card-back__cvc">{cvc || "000"}</p>
+        </article>
+    );
 }
