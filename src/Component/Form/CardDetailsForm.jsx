@@ -1,104 +1,171 @@
+const normalizeCardNumber = (value) => value.replace(/\s/g, "");
+
+const normalizeDigits = (value, maxLength) =>
+    value.replace(/\D/g, "").slice(0, maxLength);
+
+const validateName = (name) => {
+    const normalizedName = name.trim();
+
+    if (!normalizedName) {
+        return {
+            type: "required",
+            message: "Nama wajib diisi",
+        };
+    }
+
+    if (!/^[\p{L}]+(?:[ .'-][\p{L}]+)*$/u.test(normalizedName)) {
+        return {
+            type: "invalid_format",
+            message: "Please enter a valid name",
+        };
+    }
+
+    return null;
+};
+
+const validateCardNumber = (cardNumber) => {
+    const normalizedNumber = normalizeCardNumber(cardNumber);
+
+    if (!normalizedNumber) {
+        return {
+            type: "required",
+            message: "Card number is required",
+        };
+    }
+
+    if (!/^\d+$/.test(normalizedNumber)) {
+        return {
+            type: "invalid_format",
+            message: "Wrong format, numbers only",
+        };
+    }
+
+    if (normalizedNumber.length !== 16) {
+        return {
+            type: "invalid_length",
+            message: "Card number must be 16 digits",
+        };
+    }
+
+    return null;
+};
+
+const validateCvc = (cvc) => {
+    if (!cvc) {
+        return {
+            type: "required",
+            message: "CVC is required",
+        };
+    }
+
+    if (!/^\d+$/.test(cvc)) {
+        return {
+            type: "invalid_format",
+            message: "Wrong format, numbers only",
+        };
+    }
+
+    if (cvc.length !== 3) {
+        return {
+            type: "invalid_length",
+            message: "CVC must be 3 digits",
+        };
+    }
+
+    return null;
+};
+
+const validateExpiryDate = (month, year) => {
+    if (!month) {
+        return {
+            type: "required_month",
+            message: "Expiry month is required",
+        };
+    }
+
+    if (!/^\d+$/.test(month) || month.length !== 2) {
+        return {
+            type: "invalid_month",
+            message: "Invalid month",
+        };
+    }
+
+    if (Number(month) < 1 || Number(month) > 12) {
+        return {
+            type: "invalid_month",
+            message: "Invalid month",
+        };
+    }
+
+    if (!year) {
+        return {
+            type: "required_year",
+            message: "Expiry year is required",
+        };
+    }
+
+    if (!/^\d{2}$/.test(year)) {
+        return {
+            type: "invalid_year",
+            message: "Invalid year",
+        };
+    }
+
+    const now = new Date();
+    const expiryYear = 2000 + Number(year);
+    const expiryMonth = Number(month);
+
+    if (
+        expiryYear < now.getFullYear() ||
+        (expiryYear === now.getFullYear() && expiryMonth < now.getMonth() + 1)
+    ) {
+        return {
+            type: "expired",
+            message: "Card has expired",
+        };
+    }
+
+    return null;
+};
+
 export default function Form({data, errors, handleErrors, handleData}) {
 
     const validasi = (data) => {
         const errors = {};
 
-        // name
-        if (!data.name.trim()) {
-            errors.name = {
-                type: "required",
-                message: "Nama wajib diisi",
-            };
-        }
+        const nameError = validateName(data.name);
+        const cardNumberError = validateCardNumber(data.cardNumber);
+        const cvcError = validateCvc(data.cvc);
+        const expiryError = validateExpiryDate(data.expMonth, data.expYear);
 
-        // cardNumber
-        if (!data.cardNumber.trim()) {
-            errors.cardNumber = {
-                type: "required",
-                message: "Card number is required",
-            };
-        } else if (data.cardNumber.length !== 16) {
-            errors.cardNumber = {
-                type: "invalid_length",
-                message: "Card number must be 16 characters",
-            };
-        }
-
-        // cvc
-        if (!data.cvc.trim()) {
-            errors.cvc = {
-                type: "required",
-                message: "CVC is required",
-            };
-        } else if (data.cvc.length !== 3) {
-            errors.cvc = {
-                type: "invalid_length",
-                message: "CVC must be 3 characters",
-            };
-        }
-
-        // expiry
-        const expiryError = validateExpiryDate(
-            data.expMonth,
-            data.expYear
-        );
-
-        if (expiryError) {
-            errors.expiry = expiryError;
-        }
+        if (nameError) errors.name = nameError;
+        if (cardNumberError) errors.cardNumber = cardNumberError;
+        if (cvcError) errors.cvc = cvcError;
+        if (expiryError) errors.expiry = expiryError;
 
         return errors;
     };
 
-    const validateExpiryDate = (month, year) => {
-        // kosong
-        if (!month || !year) {
-            return {
-                type: "required",
-                message: "Expiry date is required",
-            };
+    const handleFieldChange = (field, value) => {
+        const nextData = {...data, [field]: value};
+        const nextErrors = {...errors};
+        let fieldError;
+
+        if (field === "name") fieldError = validateName(value);
+        if (field === "cardNumber") fieldError = validateCardNumber(value);
+        if (field === "cvc") fieldError = validateCvc(value);
+        if (field === "expMonth" || field === "expYear") {
+            fieldError = validateExpiryDate(nextData.expMonth, nextData.expYear);
         }
 
-        // month harus 01-12
-        if (
-            !/^\d{2}$/.test(month) ||
-            Number(month) < 1 ||
-            Number(month) > 12
-        ) {
-            return {
-                type: "invalid_month",
-                message: "Invalid expiry month",
-            };
+        const errorKey = field === "expMonth" || field === "expYear" ? "expiry" : field;
+        if (errors[errorKey]) {
+            if (fieldError) nextErrors[errorKey] = fieldError;
+            else delete nextErrors[errorKey];
+            handleErrors(nextErrors);
         }
 
-        // year harus 2 digit
-        if (!/^\d{2}$/.test(year)) {
-            return {
-                type: "invalid_year",
-                message: "Invalid expiry year",
-            };
-        }
-
-        // cek expired
-        const now = new Date();
-
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth() + 1;
-
-        const expiryYear = 2000 + Number(year);
-        const expiryMonth = Number(month);
-
-        if (
-            expiryYear < currentYear ||
-            (expiryYear === currentYear && expiryMonth < currentMonth)
-        ) {
-            return {
-                type: "expired",
-                message: "Card has expired",
-            };
-        }
-
-        return null;
+        handleData(field, value);
     };
 
 
@@ -118,7 +185,7 @@ export default function Form({data, errors, handleErrors, handleData}) {
 
     return (
         <form
-            className="absolute left-6 top-83.5 z-20 grid w-[calc(100%-48px)] max-w-95.25 gap-5 font-space text-purple-950 md:left-[57.78vw] md:top-[31vh] md:w-95.25"
+            className="absolute left-1/2 top-83.5 z-20 grid w-[calc(100%-48px)] max-w-95.25 -translate-x-1/2 gap-5 font-space text-purple-950 lg:left-[57.78vw] lg:top-[31vh] lg:w-95.25 lg:translate-x-0"
             onSubmit={handleSubmit}
         >
             <div>
@@ -127,7 +194,7 @@ export default function Form({data, errors, handleErrors, handleData}) {
                 </label>
                 <input
                     className={`mt-2 h-11.25 w-full rounded-lg border bg-white px-4 text-lg font-medium text-purple-950 outline-none placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.name ? "border-red-400" : "border-gray-200"}`}
-                    onChange={(e) => handleData("name", e.target.value)}
+                    onChange={(e) => handleFieldChange("name", e.target.value)}
                     type="text"
                     id="name"
                     placeholder="e.g. John Doe"
@@ -145,11 +212,11 @@ export default function Form({data, errors, handleErrors, handleData}) {
                 </label>
                 <input
                     className={`mt-2 h-11.25 w-full rounded-lg border bg-white px-4 text-lg font-medium text-purple-950 outline-none placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.cardNumber ? "border-red-400" : "border-gray-200"}`}
-                    onChange={(e) => handleData("cardNumber", e.target.value)}
+                    onChange={(e) => handleFieldChange("cardNumber", normalizeDigits(e.target.value, 16))}
                     type="text"
                     inputMode="numeric"
                     id="cardNumber"
-                    maxlength={16}
+                    maxLength={16}
                     placeholder="e.g. 1234 5678 9123 0000"
                     aria-invalid={Boolean(errors.cardNumber)}
                     aria-describedby={errors.cardNumber ? "card-number-error" : undefined}
@@ -167,22 +234,22 @@ export default function Form({data, errors, handleErrors, handleData}) {
                     <div className="mt-2 grid grid-cols-2 gap-2">
                         <input
                             className={`h-11.25 min-w-0 rounded-lg border bg-white px-3 text-lg font-medium text-purple-950 outline-none placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.expiry ? "border-red-400" : "border-gray-200"}`}
-                            onChange={(e) => handleData("expMonth", e.target.value)}
+                            onChange={(e) => handleFieldChange("expMonth", normalizeDigits(e.target.value, 2))}
                             type="text"
                             id="month"
                             inputMode="numeric"
-                            maxlength={2}
+                            maxLength={2}
                             placeholder="MM"
                             aria-invalid={Boolean(errors.expiry)}
                             aria-describedby={errors.expiry ? "expiry-error" : undefined}
                         />
                         <input
                             className={`h-11.25 min-w-0 rounded-lg border bg-white px-3 text-lg font-medium text-purple-950 outline-none placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.expiry ? "border-red-400" : "border-gray-200"}`}
-                            onChange={(e) => handleData("expYear", e.target.value)}
+                            onChange={(e) => handleFieldChange("expYear", normalizeDigits(e.target.value, 2))}
                             type="text"
                             id="year"
                             inputMode="numeric"
-                            maxlength={2}
+                            maxLength={2}
                             placeholder="YY"
                             aria-invalid={Boolean(errors.expiry)}
                             aria-describedby={errors.expiry ? "expiry-error" : undefined}
@@ -199,11 +266,11 @@ export default function Form({data, errors, handleErrors, handleData}) {
                     </label>
                     <input
                         className={`mt-2 h-11.25 w-full rounded-lg border bg-white px-3 text-lg font-medium text-purple-950 outline-none placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.cvc ? "border-red-400" : "border-gray-200"}`}
-                        onChange={(e) => handleData("cvc", e.target.value)}
+                        onChange={(e) => handleFieldChange("cvc", normalizeDigits(e.target.value, 3))}
                         type="text"
                         id="cvc"
                         placeholder="e.g. 123"
-                        maxlength={3}
+                        maxLength={3}
                         inputMode="numeric"
                         aria-invalid={Boolean(errors.cvc)}
                         aria-describedby={errors.cvc ? "cvc-error" : undefined}
